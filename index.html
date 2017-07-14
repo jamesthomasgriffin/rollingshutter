@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="manifest" href="manifest.json">
+    <script type="application/ecmascript" src="adapter.js"></script>
+    <script type="application/ecmascript" src="rs.js"></script>
+    <style>
+body {
+  background-color: linen;
+  margin: 0;
+}
+
+#rsCanvasdiv {
+  height: 100vh;
+  width: 100vw;
+  max-height: 75vw;
+  max-width: 133.33vh;
+  margin: 0 100;
+}
+
+#rsCanvas {
+  position: absolute;
+  width: inherit;
+  height: inherit;
+  max-height: inherit;
+  max-width: inherit;
+  margin: 0 100;
+}
+
+#overlay {
+  position: absolute;
+  z-index: 10;
+  width: inherit;
+  height: inherit;
+  max-height: inherit;
+  max-width: inherit;
+}
+    </style>
+  </head>
+  <body>
+    <div id="rsCanvasDiv">
+      <canvas id="rsCanvas"></canvas>
+      <canvas id="overlay"></canvas>
+    </div>
+
+  </body>
+  <script id="shader-fs" type="x-shader/x-fragment">
+varying highp vec2 vTextureCoord;
+
+uniform sampler2D uSampler;
+
+void main(void) {
+  gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+  // gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+  </script>
+  <script id="shader-vs" type="x-shader/x-vertex">
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+varying highp vec2 vTextureCoord;
+
+void main(void) {
+  gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+  vTextureCoord = aTextureCoord;
+}
+  </script>
+  <script id="shader-fs2" type="x-shader/x-fragment">
+precision mediump float;
+
+varying highp vec2 vTextureCoord;
+
+//    uniform bool uUseMask;
+//uniform sampler2D uMask;
+uniform vec2 uDelayDir;
+uniform float uDelayOffset;
+uniform sampler2D uBank1;
+uniform sampler2D uBank2;
+uniform vec2 uBankSize;
+uniform float uNumX;
+uniform float uNumY;
+uniform vec2 uVPSize;
+uniform vec2 uDepositSize;
+uniform float uTime;
+//uniform float uSelection;
+
+void main(void) {
+  // How many tiles per bank
+  float capacity = uNumX * uNumY;
+  float delay = 0.0;
+  // The delay coming from the mask
+  //      if (uUseMask) {
+  //          delay = texture2D(uMask, vec2(vTextureCoord.s, vTextureCoord.t)).r * 2.0 * capacity;
+  //      } else {
+            delay = (dot(vTextureCoord, uDelayDir) + uDelayOffset) * 2.0 * capacity;
+  //      }
+
+  // The frame needed
+  float bankNo = mod(uTime - ceil(delay) + 0.5, 2.0 * capacity) - 0.5;
+  // Figure out which bank to use
+  bool secondBank = false;
+  if (bankNo >= capacity) {
+    bankNo -= capacity;
+    secondBank = true;
+  }
+  // Calculate the frame's position
+  float x = mod(bankNo + 0.1, uNumX) - 0.1;
+  float y = (bankNo - x) / uNumX;
+  if (!secondBank) {
+    gl_FragColor = texture2D(uBank1, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
+  } else {
+    gl_FragColor = texture2D(uBank2, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
+  }
+//  if (uSelection > 0.02) {
+//    float overlayAmpl = 0.5 * sin(10.0* 3.142 * dot(vTextureCoord, uDelayDir) / length(uDelayDir) - 6.0*3.142 * uTime / capacity) + 0.5;
+//    float distFromCentre = 2.0 * length(gl_FragCoord.xy - uVPSize * 0.5) / min(uVPSize.x, uVPSize.y);
+//    float selection = uSelection * smoothstep(0.8, 0.5, distFromCentre);
+//    overlayAmpl = overlayAmpl * selection + (1.0 - selection);
+
+//    gl_FragColor = gl_FragColor * overlayAmpl;
+//  }
+  // gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
+}
+  </script>
+  <script id="shader-vs2" type="x-shader/x-vertex">
+attribute vec2 aVertexPosition;
+attribute vec2 aTextureCoord;
+
+varying highp vec2 vTextureCoord;
+
+void main(void) {
+  gl_Position = vec4(aVertexPosition, 0.0, 1.0);
+  vTextureCoord = aTextureCoord;
+}
+  </script>
+</html>
