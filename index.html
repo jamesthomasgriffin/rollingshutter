@@ -2,8 +2,8 @@
 <html>
   <head>
     <link rel="manifest" href="manifest.json">
-    <script type="application/ecmascript" src="adapter.js"></script>
-    <script type="application/ecmascript" src="rs.js"></script>
+    <script type="application/ecmascript" src="js/adapter.js"></script>
+    <script type="application/ecmascript" src="js/rs.js"></script>
     <style>
 body {
   background-color: linen;
@@ -51,7 +51,6 @@ uniform sampler2D uSampler;
 
 void main(void) {
   gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-  // gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 }
   </script>
   <script id="shader-vs" type="x-shader/x-vertex">
@@ -70,8 +69,12 @@ precision mediump float;
 
 varying highp vec2 vTextureCoord;
 
+// Only needed if using a mask to determine the delay.
 //    uniform bool uUseMask;
 //uniform sampler2D uMask;
+
+// The majority of these are integers, I'm sure they're represented as floats
+// for a good reason that I've forgotten.
 uniform vec2 uDelayDir;
 uniform float uDelayOffset;
 uniform sampler2D uBank1;
@@ -82,7 +85,6 @@ uniform float uNumY;
 uniform vec2 uVPSize;
 uniform vec2 uDepositSize;
 uniform float uTime;
-//uniform float uSelection;
 
 void main(void) {
   // How many tiles per bank
@@ -111,15 +113,6 @@ void main(void) {
   } else {
     gl_FragColor = texture2D(uBank2, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
   }
-//  if (uSelection > 0.02) {
-//    float overlayAmpl = 0.5 * sin(10.0* 3.142 * dot(vTextureCoord, uDelayDir) / length(uDelayDir) - 6.0*3.142 * uTime / capacity) + 0.5;
-//    float distFromCentre = 2.0 * length(gl_FragCoord.xy - uVPSize * 0.5) / min(uVPSize.x, uVPSize.y);
-//    float selection = uSelection * smoothstep(0.8, 0.5, distFromCentre);
-//    overlayAmpl = overlayAmpl * selection + (1.0 - selection);
-
-//    gl_FragColor = gl_FragColor * overlayAmpl;
-//  }
-  // gl_FragColor = vec4(1.0, 1.0, 0.0, 1.0);
 }
   </script>
   <script id="shader-vs2" type="x-shader/x-vertex">

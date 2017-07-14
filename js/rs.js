@@ -47,22 +47,9 @@ var rs = {
     mouseDown: false,
     mouseX: 0,
     mouseY: 0
-//    selection: 0
   }
 },
   gl = null;
-
-/*rs.controls.fadeInSelection = function () {
-  var rateOfChange = 12.0 * rs.controls.selection * (1 - rs.controls.selection) + 0.25;
-  rs.controls.selection += rateOfChange / rs.stats.framerate;
-  rs.controls.selection = Math.min(1, rs.controls.selection);
-}
-
-rs.controls.fadeOutSelection = function () {
-  var rateOfChange = 6.0 * rs.controls.selection * (1 - rs.controls.selection) + 0.12;
-  rs.controls.selection -= rateOfChange / rs.stats.framerate;
-  rs.controls.selection = Math.max(0, rs.controls.selection);
-}*/
 
 function initWebGL() {
   var canvas = document.getElementById('rsCanvas');
@@ -232,7 +219,6 @@ function initShaders() {
   rs.mainProgram.depositSizeUniform = gl.getUniformLocation(rs.mainProgram, "uDepositSize");
   rs.mainProgram.bankSizeUniform = gl.getUniformLocation(rs.mainProgram, "uBankSize");
   rs.mainProgram.timeUniform = gl.getUniformLocation(rs.mainProgram, "uTime");
-  rs.mainProgram.selectionUniform = gl.getUniformLocation(rs.mainProgram, "uSelection");
 
 }
 
@@ -375,7 +361,6 @@ function drawScene() {
   gl.uniform2f(rs.mainProgram.viewportSizeUniform, rs.realWidth, rs.realHeight);
   gl.uniform2f(rs.mainProgram.bankSizeUniform, rs.bankBufferWidth, rs.bankBufferHeight);
   gl.uniform1f(rs.mainProgram.timeUniform, rs.time);
-  gl.uniform1f(rs.mainProgram.selectionUniform, rs.controls.selection);
 
   // Assign buffers to shader attributes
   gl.bindBuffer(gl.ARRAY_BUFFER, rs.buffers.screenVertices);
@@ -459,17 +444,6 @@ function initRS() {
   }
 }
 
-/*function handleInput() {
-  if (rs.controls.mouseDown) {
-    rs.controls.fadeInSelection();
-    rs.delayDir.x = rs.controls.mouseX - 0.5;
-    rs.delayDir.y = rs.controls.mouseY - 0.5;
-    rs.delayDir.y /= rs.aspectRatio;
-    // Todo: compute offset
-  } else {
-    rs.controls.fadeOutSelection();
-  }
-}*/
 
 function initOverlay() {
   var overlayElement = document.getElementById('overlay'),
@@ -526,31 +500,6 @@ function updateOverlay() {
     for (i = 0; i < debugText.length; i += 1) {
       ctx.fillText(debugText[i], 0, 20 * i + 20);
     }
-  }
-
-  // Draw selection arrow
-  if (rs.controls.selection > 0.01) {
-    var arrowSize = Math.min(rs.width, rs.height) / rs.aspectRatio;
-
-    ctx.transform(arrowSize, 0, 0, arrowSize, rs.realWidth / 2, rs.realHeight / 2);
-    ctx.transform(rs.delayDir.y, -rs.delayDir.x,
-                  rs.delayDir.x, rs.delayDir.y, 0, 0);
-
-    ctx.strokeStyle = "#FFFFFF";
-    ctx.lineWidth = 0.05;
-    ctx.globalAlpha = rs.controls.selection;
-    ctx.beginPath();
-      ctx.moveTo(0, 1);
-      ctx.lineTo(0.7, 0.5);
-      ctx.lineTo(0.25, 0.5);
-      ctx.lineTo(0.7, -0.8);
-      ctx.lineTo(0, -0.5);
-      ctx.lineTo(-0.7, -0.8);
-      ctx.lineTo(-0.25, 0.5);
-      ctx.lineTo(-0.7, 0.5);
-    ctx.closePath();
-    ctx.stroke();
-    ctx.resetTransform();
   }
 }
 
