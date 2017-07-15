@@ -215,7 +215,7 @@ function initShaders() {
 //  rs.mainProgram.useMask = gl.getUniformLocation(rs.mainProgram, "uUseMask");
   rs.mainProgram.delayDir = gl.getUniformLocation(rs.mainProgram, "uDelayDir");
   rs.mainProgram.delayOffset = gl.getUniformLocation(rs.mainProgram, "uDelayOffset");
-  rs.mainProgram.viewportSizeUniform = gl.getUniformLocation(rs.mainProgram, "uVPSize");
+//  rs.mainProgram.viewportSizeUniform = gl.getUniformLocation(rs.mainProgram, "uVPSize");
   rs.mainProgram.depositSizeUniform = gl.getUniformLocation(rs.mainProgram, "uDepositSize");
   rs.mainProgram.bankSizeUniform = gl.getUniformLocation(rs.mainProgram, "uBankSize");
   rs.mainProgram.timeUniform = gl.getUniformLocation(rs.mainProgram, "uTime");
@@ -358,7 +358,7 @@ function drawScene() {
   gl.uniform2f(rs.mainProgram.delayDir, rs.delayDir.x, rs.delayDir.y);
   gl.uniform1f(rs.mainProgram.delayOffset, rs.delayOffset);
   gl.uniform2f(rs.mainProgram.depositSizeUniform, rs.width, rs.height);
-  gl.uniform2f(rs.mainProgram.viewportSizeUniform, rs.realWidth, rs.realHeight);
+//  gl.uniform2f(rs.mainProgram.viewportSizeUniform, rs.realWidth, rs.realHeight);
   gl.uniform2f(rs.mainProgram.bankSizeUniform, rs.bankBufferWidth, rs.bankBufferHeight);
   gl.uniform1f(rs.mainProgram.timeUniform, rs.time);
 
