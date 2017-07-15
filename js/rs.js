@@ -1,3 +1,13 @@
+/*
+Code written by James Griffin <james.griffin@cantab.net>.
+See the file LICENSE if that interests you.
+To see it running try:
+https://jtgriffin.co.uk/rollingshutter/webgl/
+or if that doesn't work I've moved it to
+https://jtgriffin.co.uk/rollingshutter/
+*/
+
+
 var rs = {
   width: 640,
   height: 480,
