@@ -130,24 +130,31 @@ function initTextures() {
 }
 
 
-function getShader(gl, id) {
-  var shaderScript, theSource, currentChild, shader;
+function getShader(gl, ids) {
+  var shaderScript, theSource, currentChild, shader, id, i;
 
-  shaderScript = document.getElementById(id);
-
-  if (!shaderScript) {
-    return null;
+  if(typeof(ids)==='string') {
+    ids = [ids];
   }
 
   theSource = "";
-  currentChild = shaderScript.firstChild;
-
-  while (currentChild) {
-    if (currentChild.nodeType === currentChild.TEXT_NODE) {
-      theSource += currentChild.textContent;
+  for (i=0; i < ids.length; i++) {
+    id = ids[i];
+    shaderScript = document.getElementById(id);
+    if (!shaderScript) {
+      return null;
     }
-    currentChild = currentChild.nextSibling;
+
+    currentChild = shaderScript.firstChild;
+
+    while (currentChild) {
+      if (currentChild.nodeType === currentChild.TEXT_NODE) {
+        theSource += currentChild.textContent;
+      }
+      currentChild = currentChild.nextSibling;
+    }
   }
+  console.log(theSource);
 
   if (shaderScript.type === "x-shader/x-fragment") {
     shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -190,7 +197,7 @@ function initShaders() {
   rs.depositProgram.vertexPositionAttribute = gl.getAttribLocation(rs.depositProgram, "aVertexPosition");
   gl.enableVertexAttribArray(rs.depositProgram.vertexPositionAttribute);
 
-  fragmentShader = getShader(gl, "shader-fs2");
+  fragmentShader = getShader(gl, ["shader-head-dir-fs2", "shader-tail-fs2"]);
   vertexShader = getShader(gl, "shader-vs2");
 
   rs.mainProgram = gl.createProgram();
