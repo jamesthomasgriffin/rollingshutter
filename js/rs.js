@@ -40,6 +40,7 @@ var rs = {
 //  maskTexture: null,
   videoTexture: null,
   videoElement: null,
+  lastVideoTime: 0,
   depositProgram: null,
   mainProgram: null,
   stats: {
@@ -63,7 +64,8 @@ var rs = {
 
 function initWebGL() {
   var canvas = document.getElementById('rsCanvas');
-  gl = canvas.getContext('webgl');
+  // Try experimental-webgl as well, in case anyone is using Edge.
+  gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
 
   if (!gl) {
     window.alert("Unable to initialize WebGL. Your browser may not support it.");
@@ -164,7 +166,6 @@ function getShader(gl, ids) {
       currentChild = currentChild.nextSibling;
     }
   }
-  console.log(theSource);
 
   if (shaderScript.type === "x-shader/x-fragment") {
     shader = gl.createShader(gl.FRAGMENT_SHADER);
@@ -296,6 +297,7 @@ function updateVideoTexture() {
   gl.bindTexture(gl.TEXTURE_2D, rs.videoTexture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, rs.videoElement);
+  gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
 function drawToBank() {
@@ -303,7 +305,16 @@ function drawToBank() {
     x = 0,
     y = 0,
     w = rs.width / rs.bankBufferWidth,
-    h = rs.height / rs.bankBufferHeight;
+    h = rs.height / rs.bankBufferHeight,
+    videoTime = rs.videoElement.currentTime;
+
+  // If there has been no change in videoTime, then there is no point rendering
+  // the image to our Bank.  But this behaves differently between browsers, so
+  // is currently disabled.
+  //if (rs.lastVideoTime === videoTime) {
+  //  return;
+  //}
+  rs.lastVideoTime = videoTime;
 
   gl.useProgram(rs.depositProgram);
 
@@ -314,10 +325,7 @@ function drawToBank() {
     gl.bindFramebuffer(gl.FRAMEBUFFER, rs.bank1.buffer);
     slotNo = rs.currentSlot;
   }
-  rs.currentSlot += 1;
-  if (rs.currentSlot >= rs.totalCapacity) {
-    rs.currentSlot = 0;
-  }
+  rs.currentSlot = (rs.currentSlot + 1) % rs.totalCapacity;
   x = slotNo % rs.bankWidth;
   y = (slotNo - x) / rs.bankWidth;
 
@@ -356,9 +364,9 @@ function drawScene() {
 
 //  handleInput();
 
-  rs.time += 1;
-	if (rs.time > rs.totalCapacity) { rs.time -= rs.totalCapacity; }
-
+  //rs.time += 1;
+	//if (rs.time > rs.totalCapacity) { rs.time -= rs.totalCapacity; }
+  rs.time = (rs.currentSlot + 1) % rs.totalCapacity;
   updateVideoTexture();
 
   drawToBank();
@@ -407,7 +415,11 @@ function drawScene() {
 function loadVideo() {
   var promise = navigator.mediaDevices.getUserMedia( {
     audio: false,
-    video: true
+    video: {
+      frameRate: { min: 30, ideal: 60 },
+      width: 640,
+      height: 480
+    }
   } );
   promise.then( function(mediaStream) {
     rs.videoElement = document.createElement('video');
@@ -415,7 +427,7 @@ function loadVideo() {
     rs.videoElement.style.display = 'none';
     rs.videoElement.src = window.URL.createObjectURL(mediaStream);
     rs.videoElement.onloadedmetadata = function(e) {
-
+      rs.videoElement.play();
       initEverything();
     }
   } );
