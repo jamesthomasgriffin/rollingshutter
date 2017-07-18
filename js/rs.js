@@ -92,7 +92,8 @@ function initBanks() {
 
 
 
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, rs.bankBufferWidth, rs.bankBufferHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, rs.bankBufferWidth, rs.bankBufferHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, rs.bankBufferWidth, rs.bankBufferHeight, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, null);
 
     var renderbuffer = gl.createRenderbuffer();
     gl.bindRenderbuffer(gl.RENDERBUFFER, renderbuffer);
@@ -112,7 +113,7 @@ function initTextures() {
   //var maskImage, videoImage;
   var videoImage;
 
-  function handleTextureLoaded(image, texture) {
+  /*function handleTextureLoaded(image, texture) {
     gl.bindTexture(gl.TEXTURE_2D, texture);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
@@ -122,7 +123,7 @@ function initTextures() {
     gl.bindTexture(gl.TEXTURE_2D, null);
   }
 
-  /*rs.maskTexture = gl.createTexture();
+  rs.maskTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, rs.maskTexture);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0, 255]));
   maskImage = new Image();
@@ -131,7 +132,8 @@ function initTextures() {
 
   rs.videoTexture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, rs.videoTexture);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0, 255]));
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, new Uint16Array([255]));
+  //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE, new Uint8Array([255, 0, 0]));
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -296,7 +298,10 @@ function initGeometry() {
 function updateVideoTexture() {
   gl.bindTexture(gl.TEXTURE_2D, rs.videoTexture);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, rs.videoElement);
+  // Using SHORT seems to trigger a conversion which takes far longer than we would expect.
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, rs.videoElement);
+  //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, rs.videoElement);
+  //gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, rs.videoElement);
   gl.bindTexture(gl.TEXTURE_2D, null);
 }
 
