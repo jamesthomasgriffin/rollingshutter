@@ -105,19 +105,21 @@ void main(void) {
   <script id="shader-tail-fs2" type="x-shader/x-fragment">
   // The frame needed - accuracy isn't needed here
   float bankNo = mod(uTime - ceil(delay) + 0.5, 2.0 * capacity) - 0.5;
-  // Figure out which bank to use
-  bool secondBank = false;
-  // Want to remove conditional expressions
-  if (bankNo >= capacity) {
-    bankNo -= capacity;
-    secondBank = true;
-  }
   // Calculate the frame's position, floors and '+ 0.1's to guarantee integer arithmetic
   float x = floor(mod(bankNo + 0.1, uNumX));
   float y = floor((bankNo - x) / uNumX + 0.1);
-  if (!secondBank) {
+  // Might be better to remove conditional expression and just do both texture lookups then interpolate
+  // Tried both, seem to be similar speeds, might be that doing both is basically equivalent to branching,
+  // in which case it is probably best to keep it as a conditional and then let the compiler decide what's best.
+        //vec4 bank1value = texture2D(uBank1, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
+        //y -= uNumY;
+        //vec4 bank2value = texture2D(uBank2, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
+        //float t = step(capacity, bankNo);
+        //gl_FragColor = t * bank2value + (1. - t) * bank1value;
+  if (bankNo < capacity) {
     gl_FragColor = texture2D(uBank1, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
   } else {
+    y -= uNumY;
     gl_FragColor = texture2D(uBank2, vec2(x + vTextureCoord.s, y + vTextureCoord.t) * uDepositSize / uBankSize);
   }
 }
